@@ -32,7 +32,7 @@ def check_credentials_are_authorized(ctx):
 
 
 def discover(ctx):
-    check_credentials_are_authorized(ctx)
+    # check_credentials_are_authorized(ctx)
     catalog = Catalog([])
     for stream in streams.STREAMS:
         schema = Schema.from_dict(streams.load_schema(stream.tap_stream_id),
@@ -74,7 +74,7 @@ def desired_fields(selected, stream_schema):
 
 
 def sync(ctx):
-    check_credentials_are_authorized(ctx)
+    # check_credentials_are_authorized(ctx)
 
     for c in ctx.selected_catalog:
         selected_fields = set(
