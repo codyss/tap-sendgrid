@@ -32,13 +32,13 @@ This tap requires a `config.json` which specifies details start date and API key
 To run discovery mode, execute the tap with the config file.
 
 ```
-> tap-sendgrid --config config.json -d > properties.json
+> tap-sendgrid --config config.json -d > catalog.json
 ```
 
 ## Sync Data
 
-To sync data, select fields in the `properties.json` output and run the tap.
+To sync data, select fields in the `catalog.json` output and run the tap.
 
 ```
-> tap-sendgrid --config config.json --properties properties.json [--state state.json]
+> tap-sendgrid --config config.json --properties catalog.json [--state state.json]
 ```
