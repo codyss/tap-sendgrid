@@ -124,7 +124,7 @@ class Syncer(object):
     def get_members_limits(self, stream, url_key=None):
         """Grabs all members incremental for a given stream"""
         offset = 0
-        limit = 5000
+        limit = 50000
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
