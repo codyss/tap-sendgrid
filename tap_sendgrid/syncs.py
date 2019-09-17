@@ -90,6 +90,13 @@ class Syncer(object):
                 logger.info('Not syncing %s %s as it is same size as last sync'
                             % (stream_type, list['id']))
 
+    def sync_member_count_limits(self, stream, schema):
+        """Grabs the member counts, except by moving by limits"""
+        logger.info(f'Starting extract for {stream.tap_stream_id}')
+
+        for results in self.get_members_limits(stream):
+            self.write_records(schema, results, stream)
+
     def sync_alls(self):
         for cat_entry in self.ctx.selected_catalog:
             stream = get_tap_stream_tuple(cat_entry.tap_stream_id)
@@ -113,6 +120,28 @@ class Syncer(object):
                                      added_properties=added_properties)
 
         self.ctx.save_member_count_state(list, stream)
+
+    def get_members_limits(self, stream, url_key=None):
+        """Grabs all members incremental for a given stream"""
+        offset = 0
+        limit = 500
+        endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
+
+        while True:
+            r = authed_get(
+                stream.tap_stream_id,
+                stream.endpoint,
+                self.ctx.config,
+                params={
+                    'offset': offset,
+                    'limit': limit
+                }
+            )
+            yield r.json()
+            if len(r.json()):
+                offset += limit
+            else:
+                break
 
     def get_alls(self, stream, url_key=None):
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint

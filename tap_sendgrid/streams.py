@@ -20,6 +20,7 @@ class IDS(object):
     GLOBAL_SUPPRESSIONS = "global_suppressions"
     GROUPS_ALL = "groups_all"
     GROUPS_MEMBERS = "groups_members"
+    GROUPS_MEMBERS_NEW = "groups_members_new"
     CONTACTS = "contacts"
     LISTS_ALL = "lists_all"
     LISTS_MEMBERS = "lists_members"
@@ -39,6 +40,7 @@ PK_FIELDS = {
     IDS.GLOBAL_SUPPRESSIONS: ["email"],
     IDS.GROUPS_ALL: ["id"],
     IDS.GROUPS_MEMBERS: ["email"],
+    IDS.GROUPS_MEMBERS_NEW: ["email"],
     IDS.CONTACTS: ["id"],
     IDS.LISTS_ALL: ["id"],
     IDS.LISTS_MEMBERS: ["id"],
@@ -56,6 +58,7 @@ PK_FIELDS = {
 class BOOKMARKS(object):
     GLOBAL_SUPPRESSIONS = [IDS.GLOBAL_SUPPRESSIONS, "end_time"]
     GROUPS_MEMBERS = [IDS.GROUPS_MEMBERS, "member_count"]
+    GROUPS_MEMBERS_NEW = [IDS.GROUPS_MEMBERS_NEW, "member_count_limits"]
     CONTACTS = [IDS.CONTACTS, "timestamp"]
     LISTS_MEMBERS = [IDS.LISTS_MEMBERS, "member_count"]
     SEGMENTS_MEMBERS = [IDS.SEGMENTS_MEMBERS, "member_count"]
@@ -70,6 +73,7 @@ STREAMS = [
     Stream(IDS.GLOBAL_SUPPRESSIONS, BOOKMARKS.GLOBAL_SUPPRESSIONS, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
     Stream(IDS.GROUPS_ALL, None, 'https://api.sendgrid.com/v3/asm/groups'),
     Stream(IDS.GROUPS_MEMBERS, BOOKMARKS.GROUPS_MEMBERS, 'https://api.sendgrid.com/v3/asm/groups/{}/suppressions'),
+    Stream(IDS.GROUPS_MEMBERS_NEW, BOOKMARKS.GROUPS_MEMBERS_NEW, 'https://api.sendgrid.com/v3/asm/suppressions'),
     Stream(IDS.CONTACTS, BOOKMARKS.CONTACTS, 'https://api.sendgrid.com/v3/contactdb/recipients/search'),
     Stream(IDS.LISTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/lists'),
     Stream(IDS.LISTS_MEMBERS, BOOKMARKS.LISTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients'),
