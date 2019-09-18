@@ -137,7 +137,7 @@ class Syncer(object):
                     'limit': limit
                 }
             )
-            if r.status_code = 502:
+            if r.status_code == 502:
                 logger.info(r.content)
             yield r.json()
             if len(r.json()):
