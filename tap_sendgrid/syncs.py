@@ -1,12 +1,13 @@
 import singer
 from .streams import IDS
-from .http import authed_get, end_of_records_check
+from .http import authed_get, end_of_records_check, retry_get
 from .utils import (
     trimmed_records, trim_members_all, get_results_from_payload,
     safe_update_dict,
     write_records, get_tap_stream_tuple, find_old_list_count,
     get_added_properties
 )
+from simplejson.scanner import JSONDecodeError
 
 logger = singer.get_logger()
 
@@ -124,11 +125,11 @@ class Syncer(object):
     def get_members_limits(self, stream, url_key=None):
         """Grabs all members incremental for a given stream"""
         offset = 0
-        limit = 1000000
+        limit = 500000
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
-            r = authed_get(
+            r = retry_get(
                 stream.tap_stream_id,
                 stream.endpoint,
                 self.ctx.config,
@@ -137,9 +138,12 @@ class Syncer(object):
                     'limit': limit
                 }
             )
-            if r.status_code == 502:
-                logger.info(r.content)
-            yield r.json()
+            try:
+                yield r.json()
+            except JSONDecodeError:
+                logger.error(f'Status code throwing error {r.status_code}')
+                logger.error(f'Conent for invalid request:\n{r.content}')
+                raise ValueError('Error parsing file...')
             if len(r.json()):
                 offset += limit
             else:
