@@ -29,7 +29,7 @@ def end_of_records_check(r):
 
 def retry_get(tap_stream_id, url, config, params=None):
     """Wrap certain streams in a retry wrapper for frequent 500s"""
-    retries = 5
+    retries = 20
     delay = 120
     backoff = 1.5
     attempt = 1
