@@ -73,7 +73,7 @@ class BOOKMARKS(object):
 Stream = namedtuple("Stream", ("tap_stream_id", "bookmark", "endpoint"))
 STREAMS = [
     Stream(IDS.GLOBAL_SUPPRESSIONS, BOOKMARKS.GLOBAL_SUPPRESSIONS, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
-    Stream(IDS.GLOBAL_SUPPRESSIONS_OVERWRITE, BOOKMARKS.GLOBAL_SUPPRESSIONS_OVERWRITE, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
+    Stream(IDS.GLOBAL_SUPPRESSIONS_OVERWRITE, None, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
     Stream(IDS.GROUPS_ALL, None, 'https://api.sendgrid.com/v3/asm/groups'),
     Stream(IDS.GROUPS_MEMBERS, BOOKMARKS.GROUPS_MEMBERS, 'https://api.sendgrid.com/v3/asm/groups/{}/suppressions'),
     Stream(IDS.GROUPS_MEMBERS_NEW, BOOKMARKS.GROUPS_MEMBERS_NEW, 'https://api.sendgrid.com/v3/asm/suppressions'),
