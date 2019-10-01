@@ -18,6 +18,7 @@ class Scopes(object):
 
 class IDS(object):
     GLOBAL_SUPPRESSIONS = "global_suppressions"
+    GLOBAL_SUPPRESSIONS_OVERWRITE = "global_suppressions_overwrite"
     GROUPS_ALL = "groups_all"
     GROUPS_MEMBERS = "groups_members"
     GROUPS_MEMBERS_NEW = "groups_members_new"
@@ -38,6 +39,7 @@ stream_ids = [getattr(IDS, x) for x in dir(IDS)]
 
 PK_FIELDS = {
     IDS.GLOBAL_SUPPRESSIONS: ["email"],
+    IDS.GLOBAL_SUPPRESSIONS_OVERWRITE: ["email"],
     IDS.GROUPS_ALL: ["id"],
     IDS.GROUPS_MEMBERS: ["email"],
     IDS.GROUPS_MEMBERS_NEW: ["email"],
@@ -57,6 +59,7 @@ PK_FIELDS = {
 
 class BOOKMARKS(object):
     GLOBAL_SUPPRESSIONS = [IDS.GLOBAL_SUPPRESSIONS, "end_time"]
+    GLOBAL_SUPPRESSIONS_OVERWRITE = [IDS.GLOBAL_SUPPRESSIONS_OVERWRITE, "end_time"]
     GROUPS_MEMBERS = [IDS.GROUPS_MEMBERS, "member_count"]
     GROUPS_MEMBERS_NEW = [IDS.GROUPS_MEMBERS_NEW, "member_count_limits"]
     CONTACTS = [IDS.CONTACTS, "timestamp"]
@@ -71,6 +74,7 @@ class BOOKMARKS(object):
 Stream = namedtuple("Stream", ("tap_stream_id", "bookmark", "endpoint"))
 STREAMS = [
     Stream(IDS.GLOBAL_SUPPRESSIONS, BOOKMARKS.GLOBAL_SUPPRESSIONS, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
+    Stream(IDS.GLOBAL_SUPPRESSIONS_OVERWRITE, BOOKMARKS.GLOBAL_SUPPRESSIONS_OVERWRITE, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
     Stream(IDS.GROUPS_ALL, None, 'https://api.sendgrid.com/v3/asm/groups'),
     Stream(IDS.GROUPS_MEMBERS, BOOKMARKS.GROUPS_MEMBERS, 'https://api.sendgrid.com/v3/asm/groups/{}/suppressions'),
     Stream(IDS.GROUPS_MEMBERS_NEW, BOOKMARKS.GROUPS_MEMBERS_NEW, 'https://api.sendgrid.com/v3/asm/suppressions'),

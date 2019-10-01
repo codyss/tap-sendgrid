@@ -34,6 +34,7 @@ setup(name='tap-sendgrid',
                 "bounces.json",
                 "campaigns.json",
                 "spam_reports.json",
+                "global_suppressions_overwrite.json",
               ]
          },
       include_package_data=True
