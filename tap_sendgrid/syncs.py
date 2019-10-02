@@ -196,7 +196,7 @@ class Syncer(object):
                 }
             )
             yield r.json()
-            if len(r.json()):
+            if len(r.json()) >= limit:
                 offset += limit
             else:
                 break
