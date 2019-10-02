@@ -113,8 +113,11 @@ class Syncer(object):
         added_properties = get_added_properties(stream, list['id'])
 
         if stream.tap_stream_id == IDS.GROUPS_MEMBERS:
-            for result in self.get_alls(stream, url_key=list['id']):
-                self.write_records(schema, result, stream,
+            url_key = list['id']
+            endpoint = stream.endpoint.format(url_key)
+            result = get_results_from_payload(authed_get(
+                stream.tap_stream_id, endpoint, self.ctx.config).json())
+            self.write_records(schema, result, stream,
                                 added_properties=added_properties)
 
         else:
