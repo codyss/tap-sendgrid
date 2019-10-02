@@ -1,4 +1,6 @@
+import pendulum
 import singer
+
 from .streams import IDS
 from .http import authed_get, end_of_records_check, retry_get
 from .utils import (
@@ -103,18 +105,17 @@ class Syncer(object):
             stream = get_tap_stream_tuple(cat_entry.tap_stream_id)
             if not stream.bookmark:
                 logger.info('Extracting all %s' % stream.tap_stream_id)
-
-                results = self.get_alls(stream)
-                self.write_records(cat_entry.schema, results, stream)
-                self.ctx.update_cache(results, cat_entry.tap_stream_id)
+                for result in self.get_alls(stream):
+                    self.write_records(cat_entry.schema, result, stream)
+                    self.ctx.update_cache(result, cat_entry.tap_stream_id)
 
     def get_and_write_members(self, list, stream, schema):
         added_properties = get_added_properties(stream, list['id'])
 
         if stream.tap_stream_id == IDS.GROUPS_MEMBERS:
-            results = self.get_alls(stream, url_key=list['id'])
-            self.write_records(schema, results, stream,
-                               added_properties=added_properties)
+            for result in self.get_alls(stream, url_key=list['id']):
+                self.write_records(schema, result, stream,
+                                added_properties=added_properties)
 
         else:
             self.write_paged_records(stream, schema, url_key=list['id'],
@@ -131,7 +132,7 @@ class Syncer(object):
         while True:
             r = retry_get(
                 stream.tap_stream_id,
-                stream.endpoint,
+                endpoint,
                 self.ctx.config,
                 params={
                     'offset': offset,
@@ -150,10 +151,11 @@ class Syncer(object):
                 break
 
     def get_alls(self, stream, url_key=None):
-        endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
+        start = pendulum.parse(self.ctx.config['start_date']).int_timestamp
+        end = self.ctx.now_seconds
 
-        return get_results_from_payload(authed_get(
-            stream.tap_stream_id, endpoint, self.ctx.config).json())
+        results = self.get_using_offset(stream, start, end, url_key)
+        return results
 
     def get_using_paged(self, stream, add_params=None, url_key=None):
         page = 1
@@ -176,14 +178,15 @@ class Syncer(object):
             else:
                 break
 
-    def get_using_offset(self, stream, start, end):
+    def get_using_offset(self, stream, start, end, url_key=None):
         offset = 0
         limit = 500
+        endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
             r = authed_get(
                 stream.tap_stream_id,
-                stream.endpoint,
+                endpoint,
                 self.ctx.config,
                 params={
                     'offset': offset,
