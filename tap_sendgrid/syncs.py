@@ -187,7 +187,7 @@ class Syncer(object):
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
-            r = authed_get(
+            r = get_results_from_payload(authed_get(
                 stream.tap_stream_id,
                 endpoint,
                 self.ctx.config,
@@ -197,9 +197,9 @@ class Syncer(object):
                     'start_time': start,
                     'end_time': end
                 }
-            )
-            yield r.json()
-            if len(r.json()) >= limit:
+            ).json())
+            yield r
+            if len(r) >= limit:
                 offset += limit
             else:
                 break
