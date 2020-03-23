@@ -1,5 +1,6 @@
 import pendulum
 import singer
+from simplejson.scanner import JSONDecodeError
 
 from .streams import IDS
 from .http import authed_get, end_of_records_check, retry_get
@@ -9,7 +10,6 @@ from .utils import (
     write_records, get_tap_stream_tuple, find_old_list_count,
     get_added_properties
 )
-from simplejson.scanner import JSONDecodeError
 
 logger = singer.get_logger()
 
@@ -56,7 +56,11 @@ class Syncer(object):
                             added_properties=None):
 
         for res in self.get_using_paged(stream, add_params=params, url_key=url_key):
-            results = res.json().get('recipients')
+            try:
+                results = res.json().get('recipients')
+            except JSONDecodeError as e:
+                logger.info(f'Response: {res}')
+                raise e
             if results:
                 self.write_records(schema, results, stream,
                                    added_properties=added_properties)
@@ -146,7 +150,7 @@ class Syncer(object):
                 yield r.json()
             except JSONDecodeError:
                 logger.error(f'Status code throwing error {r.status_code}')
-                logger.error(f'Conent for invalid request:\n{r.content}')
+                logger.error(f'Content for invalid request:\n{r.content}')
                 raise ValueError('Error parsing file...')
             if len(r.json()):
                 offset += limit
