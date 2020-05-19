@@ -46,4 +46,4 @@ def retry_get(tap_stream_id, url, config, params=None):
             return r
     logger.error(f'Status code of latest attempt: {r.status_code}')
     logger.error(f'Latest attempt response {r.content}')
-    raise ValueError(f'Failed {rerties} times trying to hit endpoint {url}')
+    raise ValueError(f'Failed {retries} times trying to hit endpoint {url}')

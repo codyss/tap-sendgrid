@@ -3,7 +3,7 @@ import singer
 from simplejson.scanner import JSONDecodeError
 
 from .streams import IDS
-from .http import authed_get, end_of_records_check, retry_get
+from .http import end_of_records_check, retry_get
 from .utils import (
     trimmed_records, trim_members_all, get_results_from_payload,
     safe_update_dict,
@@ -119,7 +119,7 @@ class Syncer(object):
         if stream.tap_stream_id == IDS.GROUPS_MEMBERS:
             url_key = list['id']
             endpoint = stream.endpoint.format(url_key)
-            result = get_results_from_payload(authed_get(
+            result = get_results_from_payload(retry_get(
                 stream.tap_stream_id, endpoint, self.ctx.config).json())
             self.write_records(schema, result, stream,
                                 added_properties=added_properties)
@@ -175,7 +175,7 @@ class Syncer(object):
                 'page_size': page_size
             }
             safe_update_dict(params, add_params)
-            r = authed_get(stream.tap_stream_id,
+            r = retry_get(stream.tap_stream_id,
                            endpoint,
                            self.ctx.config,
                            params=params)
@@ -191,7 +191,7 @@ class Syncer(object):
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
-            r = get_results_from_payload(authed_get(
+            r = get_results_from_payload(retry_get(
                 stream.tap_stream_id,
                 endpoint,
                 self.ctx.config,
