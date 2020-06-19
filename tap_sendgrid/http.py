@@ -28,19 +28,6 @@ def end_of_records_check(r):
         return False
 
 
-def json_parse_retry(tap_stream_id, url, config, params=None):
-    retries = 3
-    attempt = 1
-    while retries >= attempt:
-        r = retry_get(tap_stream_id, url, config, params=None)
-        try:
-            r.json().get('recipients')
-        except JSONDecodeError as e:
-            attempt += 1
-            continue
-        break
-    return r
-
 def retry_get(tap_stream_id, url, config, params=None):
     """Wrap certain streams in a retry wrapper for frequent 500s"""
     retries = 20

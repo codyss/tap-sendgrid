@@ -168,6 +168,7 @@ class Syncer(object):
         page = 1
         page_size = 1000
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
+        page_attempts = 0
 
         while True:
             params = {
@@ -175,15 +176,25 @@ class Syncer(object):
                 'page_size': page_size
             }
             safe_update_dict(params, add_params)
-            r = json_parse_retry(stream.tap_stream_id,
+            r = retry_get(stream.tap_stream_id,
                            endpoint,
                            self.ctx.config,
                            params=params)
-            yield r
-            if not end_of_records_check(r):
-                page += 1
-            else:
-                break
+            try:
+                yield r.json()
+                if not end_of_records_check(r):
+                    page_attempts = 0
+                    page += 1
+                else:
+                    break
+            except JSONDecodeError:
+                page_attempts += 1
+                if page_attempts > 3:
+                    continue
+                else:
+                    logger.error(f'Status code throwing error {r.status_code}')
+                    logger.error(f'Content for invalid request:\n{r.content}')
+                    raise ValueError('Error parsing file...')
 
     def get_using_offset(self, stream, start, end, url_key=None):
         offset = 0
