@@ -2,7 +2,6 @@ import requests
 import singer
 import time
 
-from simplejson import JSONDecodeError
 from singer import metrics
 
 session = requests.Session()

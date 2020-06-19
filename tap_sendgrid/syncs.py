@@ -3,7 +3,7 @@ import singer
 from simplejson.scanner import JSONDecodeError
 
 from .streams import IDS
-from .http import end_of_records_check, retry_get, json_parse_retry
+from .http import end_of_records_check, retry_get
 from .utils import (
     trimmed_records, trim_members_all, get_results_from_payload,
     safe_update_dict,
