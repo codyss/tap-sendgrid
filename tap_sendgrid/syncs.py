@@ -57,7 +57,7 @@ class Syncer(object):
 
         for res in self.get_using_paged(stream, add_params=params, url_key=url_key):
             try:
-                results = res.json().get('recipients')
+                results = res.get('recipients')
             except JSONDecodeError as e:
                 logger.info(f'Response: {res}')
                 raise e
@@ -182,19 +182,19 @@ class Syncer(object):
                            params=params)
             try:
                 yield r.json()
-                if not end_of_records_check(r):
-                    page_attempts = 0
-                    page += 1
-                else:
-                    break
             except JSONDecodeError:
                 page_attempts += 1
-                if page_attempts > 3:
+                if page_attempts < 3:
                     continue
                 else:
                     logger.error(f'Status code throwing error {r.status_code}')
                     logger.error(f'Content for invalid request:\n{r.content}')
                     raise ValueError('Error parsing file...')
+            if not end_of_records_check(r):
+                page_attempts = 0
+                page += 1
+            else:
+                break
 
     def get_using_offset(self, stream, start, end, url_key=None):
         offset = 0
