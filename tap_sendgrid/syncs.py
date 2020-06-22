@@ -57,7 +57,7 @@ class Syncer(object):
 
         for res in self.get_using_paged(stream, add_params=params, url_key=url_key):
             try:
-                results = res.json().get('recipients')
+                results = res.get('recipients')
             except JSONDecodeError as e:
                 logger.info(f'Response: {res}')
                 raise e
@@ -168,6 +168,7 @@ class Syncer(object):
         page = 1
         page_size = 1000
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
+        page_attempts = 0
 
         while True:
             params = {
@@ -179,8 +180,18 @@ class Syncer(object):
                            endpoint,
                            self.ctx.config,
                            params=params)
-            yield r
+            try:
+                yield r.json()
+            except JSONDecodeError:
+                page_attempts += 1
+                if page_attempts < 3:
+                    continue
+                else:
+                    logger.error(f'Status code throwing error {r.status_code}')
+                    logger.error(f'Content for invalid request:\n{r.content}')
+                    raise ValueError('Error parsing file...')
             if not end_of_records_check(r):
+                page_attempts = 0
                 page += 1
             else:
                 break
