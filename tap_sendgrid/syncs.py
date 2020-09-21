@@ -104,14 +104,37 @@ class Syncer(object):
         for results in self.get_members_limits(stream):
             self.write_records(schema, results, stream)
 
+    def sync_member_count_overwrite(self, stream, schema):
+        stream_type = trim_members_all(stream.tap_stream_id)
+
+        for list in self.ctx.cache[stream_type]:
+            old_list_count = find_old_list_count(
+                list['id'],
+                self.ctx.update_start_date_bookmark(stream.bookmark))
+            if list['member_count'] > old_list_count:
+                logger.info(
+                    'Starting to extract %s as list size now: %s, was: %s' % (
+                        stream.tap_stream_id, list['member_count'],
+                        old_list_count))
+
+                self.write_records(schema, list, stream)
+            else:
+                logger.info('Not syncing %s %s as it is same size as last sync'
+                            % (stream_type, list['id']))
+
     def sync_alls(self):
         for cat_entry in self.ctx.selected_catalog:
             stream = get_tap_stream_tuple(cat_entry.tap_stream_id)
+            logger.info('Extracting all %s' % stream.tap_stream_id)
             if not stream.bookmark:
-                logger.info('Extracting all %s' % stream.tap_stream_id)
                 for result in self.get_alls(stream):
                     self.write_records(cat_entry.schema, result, stream)
                     self.ctx.update_cache(result, cat_entry.tap_stream_id)
+            elif stream.bookmark and 'overwrite' in stream.tap_stream_id:
+                getattr(self, 'sync_%s_overwrite' % stream.bookmark[1])(
+                    stream, cat_entry.schema)
+
+                self.ctx.write_state()
 
     def get_and_write_members(self, list, stream, schema):
         added_properties = get_added_properties(stream, list['id'])
