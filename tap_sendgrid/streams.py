@@ -84,7 +84,7 @@ STREAMS = [
     Stream(IDS.LISTS_MEMBERS, BOOKMARKS.LISTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients'),
     Stream(IDS.SEGMENTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/segments'),
     Stream(IDS.SEGMENTS_MEMBERS, BOOKMARKS.SEGMENTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients'),
-    Stream(IDS.SEGMENTS_MEMBERS_OVERWRITE, BOOKMARKS.SEGMENTS_MEMBERS_OVERWRITE, 'https://api.sendgrid.com/v3/contactdb/recipients'),
+    Stream(IDS.SEGMENTS_MEMBERS_OVERWRITE, BOOKMARKS.SEGMENTS_MEMBERS_OVERWRITE, 'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients'),
     Stream(IDS.TEMPLATES_ALL, None, 'https://api.sendgrid.com/v3/templates'),
     Stream(IDS.INVALIDS, BOOKMARKS.INVALIDS, 'https://api.sendgrid.com/v3/suppression/invalid_emails'),
     Stream(IDS.BOUNCES, BOOKMARKS.BOUNCES, 'https://api.sendgrid.com/v3/suppression/bounces'),
