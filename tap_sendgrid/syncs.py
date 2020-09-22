@@ -105,6 +105,7 @@ class Syncer(object):
             self.write_records(schema, results, stream)
 
     def sync_member_count_overwrite(self, stream, schema):
+
         stream_type = trim_members_all(stream.tap_stream_id)
 
         for list in self.ctx.cache[stream_type]:
@@ -117,7 +118,10 @@ class Syncer(object):
                         stream.tap_stream_id, list['member_count'],
                         old_list_count))
 
-                self.write_records(schema, list, stream)
+                self.write_paged_records(stream, schema, url_key=list['id'])
+
+                self.ctx.save_member_count_state(list, stream)
+
             else:
                 logger.info('Not syncing %s %s as it is same size as last sync'
                             % (stream_type, list['id']))
@@ -146,7 +150,6 @@ class Syncer(object):
                 stream.tap_stream_id, endpoint, self.ctx.config).json())
             self.write_records(schema, result, stream,
                                 added_properties=added_properties)
-
         else:
             self.write_paged_records(stream, schema, url_key=list['id'],
                                      added_properties=added_properties)
