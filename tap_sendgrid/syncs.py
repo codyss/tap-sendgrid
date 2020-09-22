@@ -97,13 +97,6 @@ class Syncer(object):
                 logger.info('Not syncing %s %s as it is same size as last sync'
                             % (stream_type, list['id']))
 
-    def sync_member_count_limits(self, stream, schema):
-        """Grabs the member counts, except by moving by limits"""
-        logger.info(f'Starting extract for {stream.tap_stream_id}')
-
-        for results in self.get_members_limits(stream):
-            self.write_records(schema, results, stream)
-
     def sync_member_count_overwrite(self, stream, schema):
 
         stream_type = trim_members_all(stream.tap_stream_id)
@@ -118,13 +111,21 @@ class Syncer(object):
                         stream.tap_stream_id, list['member_count'],
                         old_list_count))
 
-                self.write_paged_records(stream, schema, url_key=list['id'])
+                for result in self.get_alls(stream, url_key=list['id']):
+                    self.write_records(schema, result, stream)
+                    self.ctx.update_cache(result, stream.tap_stream_id)
 
                 self.ctx.save_member_count_state(list, stream)
-
             else:
                 logger.info('Not syncing %s %s as it is same size as last sync'
                             % (stream_type, list['id']))
+
+    def sync_member_count_limits(self, stream, schema):
+        """Grabs the member counts, except by moving by limits"""
+        logger.info(f'Starting extract for {stream.tap_stream_id}')
+
+        for results in self.get_members_limits(stream):
+            self.write_records(schema, results, stream)
 
     def sync_alls(self):
         for cat_entry in self.ctx.selected_catalog:
@@ -135,7 +136,7 @@ class Syncer(object):
                     self.write_records(cat_entry.schema, result, stream)
                     self.ctx.update_cache(result, cat_entry.tap_stream_id)
             elif stream.bookmark and 'overwrite' in stream.tap_stream_id:
-                getattr(self, 'sync_%s_overwrite' % stream.bookmark[1])(
+                getattr(self, 'sync_%s' % stream.bookmark[1])(
                     stream, cat_entry.schema)
 
                 self.ctx.write_state()
