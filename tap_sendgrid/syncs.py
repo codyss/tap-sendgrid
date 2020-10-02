@@ -27,7 +27,7 @@ class Syncer(object):
     def sync_incrementals(self):
         for cat_entry in self.ctx.selected_catalog:
             stream = get_tap_stream_tuple(cat_entry.tap_stream_id)
-            if stream.bookmark:
+            if stream.bookmark and 'overwrite' not in stream.tap_stream_id:
                 getattr(self, 'sync_%s' % stream.bookmark[1])(
                     stream, cat_entry.schema)
 
