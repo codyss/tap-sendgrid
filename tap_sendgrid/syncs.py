@@ -97,29 +97,6 @@ class Syncer(object):
                 logger.info('Not syncing %s %s as it is same size as last sync'
                             % (stream_type, list['id']))
 
-    def sync_member_count_overwrite(self, stream, schema):
-
-        stream_type = trim_members_all(stream.tap_stream_id)
-
-        for list in self.ctx.cache[stream_type]:
-            old_list_count = find_old_list_count(
-                list['id'],
-                self.ctx.update_start_date_bookmark(stream.bookmark))
-            if list['member_count'] > old_list_count:
-                logger.info(
-                    'Starting to extract %s as list size now: %s, was: %s' % (
-                        stream.tap_stream_id, list['member_count'],
-                        old_list_count))
-
-                for result in self.get_alls(stream, url_key=list['id']):
-                    self.write_records(schema, result, stream)
-                    self.ctx.update_cache(result, stream.tap_stream_id)
-
-                self.ctx.save_member_count_state(list, stream)
-            else:
-                logger.info('Not syncing %s %s as it is same size as last sync'
-                            % (stream_type, list['id']))
-
     def sync_member_count_limits(self, stream, schema):
         """Grabs the member counts, except by moving by limits"""
         logger.info(f'Starting extract for {stream.tap_stream_id}')
@@ -130,16 +107,11 @@ class Syncer(object):
     def sync_alls(self):
         for cat_entry in self.ctx.selected_catalog:
             stream = get_tap_stream_tuple(cat_entry.tap_stream_id)
-            logger.info('Extracting all %s' % stream.tap_stream_id)
             if not stream.bookmark:
+                logger.info('Extracting all %s' % stream.tap_stream_id)
                 for result in self.get_alls(stream):
                     self.write_records(cat_entry.schema, result, stream)
                     self.ctx.update_cache(result, cat_entry.tap_stream_id)
-            elif stream.bookmark and 'overwrite' in stream.tap_stream_id:
-                getattr(self, 'sync_%s' % stream.bookmark[1])(
-                    stream, cat_entry.schema)
-
-                self.ctx.write_state()
 
     def get_and_write_members(self, list, stream, schema):
         added_properties = get_added_properties(stream, list['id'])
@@ -151,6 +123,7 @@ class Syncer(object):
                 stream.tap_stream_id, endpoint, self.ctx.config).json())
             self.write_records(schema, result, stream,
                                 added_properties=added_properties)
+
         else:
             self.write_paged_records(stream, schema, url_key=list['id'],
                                      added_properties=added_properties)
