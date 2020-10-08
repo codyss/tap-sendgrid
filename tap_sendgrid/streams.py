@@ -27,7 +27,6 @@ class IDS(object):
     LISTS_MEMBERS = "lists_members"
     SEGMENTS_ALL = "segments_all"
     SEGMENTS_MEMBERS = "segments_members"
-    SEGMENTS_MEMBERS_OVERWRITE = "segments_members_overwrite"
     TEMPLATES_ALL = "templates_all"
     INVALIDS = "invalids"
     BOUNCES = "bounces"
@@ -49,7 +48,6 @@ PK_FIELDS = {
     IDS.LISTS_MEMBERS: ["id"],
     IDS.SEGMENTS_ALL: ["id"],
     IDS.SEGMENTS_MEMBERS: ["id"],
-    IDS.SEGMENTS_MEMBERS_OVERWRITE: ["id"],
     IDS.TEMPLATES_ALL: ["id"],
     IDS.INVALIDS: ["email"],
     IDS.BOUNCES: ["email"],
@@ -65,7 +63,6 @@ class BOOKMARKS(object):
     CONTACTS = [IDS.CONTACTS, "timestamp"]
     LISTS_MEMBERS = [IDS.LISTS_MEMBERS, "member_count"]
     SEGMENTS_MEMBERS = [IDS.SEGMENTS_MEMBERS, "member_count"]
-    SEGMENTS_MEMBERS_OVERWRITE = [IDS.SEGMENTS_MEMBERS_OVERWRITE, "member_count"]
     INVALIDS = [IDS.INVALIDS, "end_time"]
     BOUNCES = [IDS.BOUNCES, "end_time"]
     BLOCKS = [IDS.BLOCKS, "end_time"]
@@ -84,7 +81,6 @@ STREAMS = [
     Stream(IDS.LISTS_MEMBERS, BOOKMARKS.LISTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients'),
     Stream(IDS.SEGMENTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/segments'),
     Stream(IDS.SEGMENTS_MEMBERS, BOOKMARKS.SEGMENTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients'),
-    Stream(IDS.SEGMENTS_MEMBERS_OVERWRITE, BOOKMARKS.SEGMENTS_MEMBERS_OVERWRITE, 'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients'),
     Stream(IDS.TEMPLATES_ALL, None, 'https://api.sendgrid.com/v3/templates'),
     Stream(IDS.INVALIDS, BOOKMARKS.INVALIDS, 'https://api.sendgrid.com/v3/suppression/invalid_emails'),
     Stream(IDS.BOUNCES, BOOKMARKS.BOUNCES, 'https://api.sendgrid.com/v3/suppression/bounces'),
