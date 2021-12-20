@@ -41,7 +41,7 @@ def retry_get(tap_stream_id, url, config, params=None):
     attempt = 1
     while retries >= attempt:
         r = authed_get(tap_stream_id, url, config, params)
-        if r.status_code >= 500:
+        if r.status_code != 200:
             logger.info(f'Got a status code of {r.status_code}, attempt '
                         f'{attempt} of {retries}. Backing off for {delay} '
                         f'seconds')
