@@ -7,9 +7,6 @@
     "name": {
       "type": ["string"]
     },
-    "abtest": {
-      "type": ["null", "object"]
-    },
     "status": {
       "type": ["null", "string"]
     },
