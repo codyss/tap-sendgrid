@@ -33,6 +33,7 @@ class IDS(object):
     BLOCKS = "blocks"
     SPAM_REPORTS = "spam_reports"
     CAMPAIGNS = "campaigns"
+    SINGLE_SENDS_ALL = "single_sends_all"
 
 
 stream_ids = [getattr(IDS, x) for x in dir(IDS)]
@@ -54,6 +55,7 @@ PK_FIELDS = {
     IDS.BLOCKS: ["email"],
     IDS.SPAM_REPORTS: ["email"],
     IDS.CAMPAIGNS: ["id"],
+    IDS.SINGLE_SENDS_ALL: ["id"]
 }
 
 
@@ -87,6 +89,7 @@ STREAMS = [
     Stream(IDS.BLOCKS, BOOKMARKS.BLOCKS, 'https://api.sendgrid.com/v3/suppression/blocks'),
     Stream(IDS.SPAM_REPORTS, BOOKMARKS.SPAM_REPORTS, 'https://api.sendgrid.com/v3/suppression/spam_reports'),
     Stream(IDS.CAMPAIGNS, None, 'https://api.sendgrid.com/v3/campaigns'),
+    Stream(IDS.SINGLE_SENDS_ALL, None, 'https://api.sendgrid.com/v3/marketing/singlesends')
 ]
 
 
