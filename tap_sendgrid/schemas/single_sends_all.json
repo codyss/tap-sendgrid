@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["string"]
+    },
+    "name": {
+      "type": ["string"]
+    },
+    "abtest": {
+      "type": ["null", "object"]
+    },
+    "status": {
+      "type": ["null", "string"]
+    },
+    "categories": {
+      "type": ["null", "array"]
+    },
+    "send_at": {
+      "type": ["null", "string"]
+    },
+    "is_abtest": {
+      "type": ["boolean"]
+    },
+    "updated_at": {
+      "type": ["null", "string"]
+    },
+    "created_at": {
+      "type": ["null", "string"]
+    }
+  }
+}
