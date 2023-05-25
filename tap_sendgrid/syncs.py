@@ -1,3 +1,4 @@
+import backoff
 import pendulum
 import singer
 from simplejson.scanner import JSONDecodeError
@@ -122,7 +123,7 @@ class Syncer(object):
             result = get_results_from_payload(retry_get(
                 stream.tap_stream_id, endpoint, self.ctx.config).json())
             self.write_records(schema, result, stream,
-                                added_properties=added_properties)
+                               added_properties=added_properties)
 
         else:
             self.write_paged_records(stream, schema, url_key=list['id'],
@@ -176,15 +177,16 @@ class Syncer(object):
             }
             safe_update_dict(params, add_params)
             r = retry_get(stream.tap_stream_id,
-                           endpoint,
-                           self.ctx.config,
-                           params=params)
+                          endpoint,
+                          self.ctx.config,
+                          params=params)
             yield r
             if not end_of_records_check(r):
                 page += 1
             else:
                 break
 
+    @backoff.on_exception(backoff.expo, JSONDecodeError, max_tries=20, max_value=200)
     def get_using_offset(self, stream, start, end, url_key=None):
         offset = 0
         limit = 500

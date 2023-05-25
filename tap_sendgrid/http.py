@@ -7,9 +7,15 @@ from singer import metrics
 session = requests.Session()
 logger = singer.get_logger()
 
+# see https://app.asana.com/0/1189361572142836/1194396938962481/f and 
+# https://simondata.atlassian.net/browse/DI-259?atlOrigin=eyJpIjoiOTJhM2FkNzVjODEzNDIwYjk2Y2JlOTA4YjQ4ZWRlY2QiLCJwIjoiaiJ9
+CUSTOM_HEADER_KEY = 'X-SGUID'
+CUSTOM_HEADER_VALUE = '3459112'
+
 
 def authed_get(tap_stream_id, url, config, params=None):
     headers = {"Authorization": "Bearer %s" % config['api_key']}
+    headers[CUSTOM_HEADER_KEY] = CUSTOM_HEADER_VALUE
     with metrics.http_request_timer(tap_stream_id) as timer:
         resp = session.request(method='get', url=url, params=params, headers=headers)
         timer.tags[metrics.Tag.http_status_code] = resp.status_code
@@ -35,7 +41,7 @@ def retry_get(tap_stream_id, url, config, params=None):
     attempt = 1
     while retries >= attempt:
         r = authed_get(tap_stream_id, url, config, params)
-        if r.status_code >= 500:
+        if r.status_code != 200:
             logger.info(f'Got a status code of {r.status_code}, attempt '
                         f'{attempt} of {retries}. Backing off for {delay} '
                         f'seconds')
