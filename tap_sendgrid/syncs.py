@@ -186,7 +186,7 @@ class Syncer(object):
             else:
                 break
 
-    @backoff.on_exception(backoff.expo, JSONDecodeError, max_tries=10)
+    @backoff.on_exception(backoff.expo, JSONDecodeError, max_tries=20, max_value=200)
     def get_using_offset(self, stream, start, end, url_key=None):
         offset = 0
         limit = 500
