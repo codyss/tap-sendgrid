@@ -193,7 +193,7 @@ class Syncer(object):
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
-            r = get_results_from_payload(retry_get(
+            response = retry_get(
                 stream.tap_stream_id,
                 endpoint,
                 self.ctx.config,
@@ -203,7 +203,14 @@ class Syncer(object):
                     'start_time': start,
                     'end_time': end
                 }
-            ).json())
+            )
+            res_json = None
+            try:
+                res_json = response.json()
+            except JSONDecodeError as e:
+                logger.info(f'Response: {response}')
+                raise e
+            r = get_results_from_payload(res_json)
             yield r
             if len(r) >= limit:
                 offset += limit
