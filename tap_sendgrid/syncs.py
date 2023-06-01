@@ -208,7 +208,8 @@ class Syncer(object):
             try:
                 res_json = response.json()
             except JSONDecodeError as e:
-                logger.info(f'Response: {response}')
+                logger.error(f'Status code throwing error {response.status_code}')
+                logger.error(f'Content for invalid request:\n{response.content}')
                 raise e
             r = get_results_from_payload(res_json)
             yield r
