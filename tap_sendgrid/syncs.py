@@ -187,29 +187,38 @@ class Syncer(object):
                 break
 
     @backoff.on_exception(backoff.expo, JSONDecodeError, max_tries=20, max_value=200)
+    def get_response_json(self, endpoint, stream_id, params):
+        response = retry_get(
+            stream_id,
+            endpoint,
+            self.ctx.config,
+            params=params
+        )
+        res_json = None
+        try:
+            res_json = response.json()
+        except JSONDecodeError as e:
+            logger.error(f'Status code throwing error {response.status_code}')
+            logger.error(f'Content for invalid request:\n{response.content}')
+            raise e
+        return res_json
+
     def get_using_offset(self, stream, start, end, url_key=None):
         offset = 0
         limit = 500
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
         while True:
-            response = retry_get(
-                stream.tap_stream_id,
+            res_json = self.get_response_json(
                 endpoint,
-                self.ctx.config,
+                stream.tap_stream_id,
                 params={
                     'offset': offset,
                     'limit': limit,
                     'start_time': start,
                     'end_time': end
-                }
+                },
             )
-            res_json = None
-            try:
-                res_json = response.json()
-            except JSONDecodeError as e:
-                logger.info(f'Response: {response}')
-                raise e
             r = get_results_from_payload(res_json)
             yield r
             if len(r) >= limit:
